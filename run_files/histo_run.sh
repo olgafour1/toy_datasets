@@ -13,7 +13,7 @@
 module load anaconda/3
 source /opt/software/applications/anaconda/3/etc/profile.d/conda.sh
 conda activate alma
-cd /home/ofourkioti/Projects/Neighbor-based-Multiple-Instance-Learning/
+cd /home/ofourkioti/toy_datasets/
 python run.py --experiment_name  k_3 --mode siamese --k 3 --input_shape 27 27 3 --extention bmp --data colon --prob 0.75 --data_path ColonCancer  --siam_epochs 20
 
 
