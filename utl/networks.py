@@ -91,14 +91,14 @@ class SiameseNet:
 
         """
 
-
-        train_pairs, train_labels = get_siamese_pairs(train_bags, k=self.siam_k, pixel_distance=self.siam_pixel_dist,augmentation=True)
+        bags=np.concatenate((train_bags, val_bags))
+        train_pairs, train_labels = get_siamese_pairs(bags, k=self.siam_k, pixel_distance=self.siam_pixel_dist,augmentation=True)
         train_gen = SiameseGenerator(train_pairs, train_labels, batch_size=self.siam_batch_size, dim=self.input_shape,
                                      shuffle=True)
-        val_pairs, val_labels = get_siamese_pairs(val_bags, k=self.siam_k, pixel_distance=self.siam_pixel_dist,
-                                                  augmentation=False)
-        val_gen = SiameseGenerator(val_pairs, val_labels, batch_size=self.siam_batch_size, dim=self.input_shape,
-                                   shuffle=False)
+        # val_pairs, val_labels = get_siamese_pairs(val_bags, k=self.siam_k, pixel_distance=self.siam_pixel_dist,
+        #                                           augmentation=False)
+        # val_gen = SiameseGenerator(val_pairs, val_labels, batch_size=self.siam_batch_size, dim=self.input_shape,
+        #                            shuffle=False)
 
         if not os.path.exists(self.siamese_weights_path):
             os.makedirs(self.siamese_weights_path)
@@ -107,17 +107,17 @@ class SiameseNet:
                                 "weights-irun:{}-ifold:{}".format(irun, ifold) + ".hdf5")
 
         checkpoint_fixed_name = ModelCheckpoint(filepath,
-                                                monitor='val_loss', verbose=1, save_best_only=True,
+                                                monitor='loss', verbose=1, save_best_only=True,
                                                 save_weights_only=False, mode='auto', save_freq='epoch')
 
-        EarlyStop = EarlyStopping(monitor='val_loss', patience=20)
+        EarlyStop = EarlyStopping(monitor='loss', patience=20)
 
         callbacks = [checkpoint_fixed_name, EarlyStop]
 
 
         self.net.fit_generator(generator=train_gen, steps_per_epoch=len(train_gen) ,
-                               epochs=self.siam_epochs, validation_data=val_gen,
-                               validation_steps=len(val_gen), callbacks=callbacks,
+                               epochs=self.siam_epochs,
+                                callbacks=callbacks
                                )
 
         return self.net
