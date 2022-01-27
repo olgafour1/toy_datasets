@@ -166,6 +166,7 @@ class NeighborAggregator(Layer):
 
         data_input = multiply([adj_matrix, data_input])
 
+
         non_zero_elements = tf.cast(tf.math.count_nonzero(adj_matrix, 1), tf.float32)
 
         sparse = tf.sparse.from_dense(data_input)
@@ -173,6 +174,7 @@ class NeighborAggregator(Layer):
         sparse_mean = self.sparse_mean(sparse,non_zero_elements)
 
         x=tf.reshape(tensor=sparse_mean, shape=(tf.shape(data_input)[1],))
+
 
         alpha = K.softmax(x)
 
@@ -608,7 +610,9 @@ class NeighborAttention(Layer):
 
         # add the mask to the scaled tensor.
         attention_weights = NeighborAggregator(output_dim=1, name="alpha")([scaled_attention_logits, mask])
+
         attention_output = multiply([attention_weights, value], name="mul")
+
         return  attention_output, attention_weights
 
     def separate_heads(self, x, batch_size):
@@ -638,9 +642,6 @@ class NeighborAttention(Layer):
             # # self attention of different heads are concatenated
             # output = self.combine_heads(concat_attention)
             return output, attention_weights
-
-
-
 
 class TransformerBlock(Layer):
         def __init__(self, embed_dim, training, ff_dim,dropout=0.1):
