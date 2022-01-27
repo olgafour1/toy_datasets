@@ -184,22 +184,25 @@ class DataGenerator(tf.keras.utils.Sequence):
         for row, column in zip(rows, columns):
 
             value= self.serve([np.expand_dims(images[int(row)], axis=0),np.expand_dims(images[int(column)], axis=0)]).numpy()[0][0]
+            #print(filenames[row], filenames[column], value)
             values.append(value)
 
-
-        values = [float(i) / max(values) for i in values]
-        values = [1-x for x in values]
+        #print (values)
+        # values = [float(i) / max(values) for i in values]
+        # values = [1-x for x in values]
 
 
         affinity[rows, columns] = tf.squeeze(values)
 
         affinity[rows, columns] = values
 
-        np.fill_diagonal(affinity, 1)
-
         #affinity = np.where(affinity < self.prob, 0, 1)
 
-        affinity = np.where(affinity > 0, np.exp(-affinity), 0)
+        affinity = np.where(np.logical_and(affinity> 0, affinity<=0.1) , np.exp(-affinity), 0)
+
+        print (affinity)
+
+        np.fill_diagonal(affinity, 1)
 
         affinity = affinity.astype("float32")
 
